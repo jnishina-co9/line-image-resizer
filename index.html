@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>画像リサイズツール</title>
+  <meta name="description" content="LINEスタンプ（静止画）用に画像を自動リサイズするツール。370×320pxの透過PNGに変換。複数枚一括処理対応。すべてブラウザ上で処理されます。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="site-header">
+    <h1 class="site-title">IMAGE RESIZER</h1>
+    <p class="site-subtitle">- 画像リサイズツール -</p>
+  </header>
+
+  <!-- ===== Main ===== -->
+  <main class="main-container">
+
+    <!-- Section 01: Upload -->
+    <section class="card" id="section-upload">
+      <h2 class="step-title"><i data-lucide="image"></i> 1. 画像を選択</h2>
+
+      <input type="file" id="file-input" accept="image/png,image/jpeg" multiple class="hidden" />
+
+      <div id="drop-zone" class="drop-zone">
+        <i data-lucide="upload-cloud" class="icon-xl drop-icon"></i>
+        <p class="drop-text">クリックして画像ファイルを選択</p>
+        <!-- 選択ファイルのプレビュー（ドロップゾーン内） -->
+        <div id="selected-preview" class="selected-preview hidden"></div>
+      </div>
+
+      <div id="error-msg" class="error-msg hidden">
+        <i data-lucide="alert-circle" class="icon-sm"></i>
+        <span id="error-text">画像以外のファイルが読み込まれています。画像を選択してください。</span>
+      </div>
+    </section>
+
+    <!-- Section 02: Results -->
+    <section class="card" id="section-result">
+      <h2 class="step-title"><i data-lucide="image-down"></i> 2. 変換結果</h2>
+
+      <!-- 処理仕様 -->
+      <div class="spec-note">
+        <p class="spec-note-title">処理仕様</p>
+        <ul class="spec-list">
+          <li>LINEスタンプの標準サイズ（370 × 320 px・透明背景）に自動調整</li>
+          <li>上下左右に10px以上の余白を空け、審査落ち（リジェクト）を防止</li>
+          <li>イラストの縦横比を崩さず、中央に配置</li>
+          <li>小さなイラストは無理に拡大せず、綺麗な画質のまま配置</li>
+          <li>位置やサイズを綺麗に見える数値に自動で調整</li>
+        </ul>
+      </div>
+
+      <!-- 空・処理中の状態 -->
+      <div id="status-area" class="status-empty hidden">
+        <i data-lucide="loader" class="icon-sm animate-spin hidden" id="status-icon-loader"></i>
+        <span id="status-text">画像を選択してください</span>
+      </div>
+
+      <!-- 結果グリッド -->
+      <div id="result-grid" class="result-grid hidden"></div>
+
+      <!-- ボタン群 -->
+      <div id="actions-group" class="actions-group hidden">
+        <button id="zip-btn" class="btn-primary hidden">
+          <i data-lucide="package"></i> まとめてZIP保存
+        </button>
+        <button id="reset-btn" class="btn-secondary">
+          <i data-lucide="rotate-ccw"></i> リセットする
+        </button>
+        <p class="disclaimer">※ 本ツールはLINEスタンプの審査通過を保証するものではありません。</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <p class="footer-copy">© 2026 深森呼吸</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
