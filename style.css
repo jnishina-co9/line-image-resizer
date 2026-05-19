@@ -127,7 +127,7 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px;
-  max-width: 400px;
+  max-width: 696px; /* 1行に最大8枚（画像80px×8枚 + 隙間8px×7箇所）並ぶように制限 */
 }
 .preview-thumb {
   width: 80px;
