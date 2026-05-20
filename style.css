@@ -120,6 +120,12 @@ body {
   font-weight: 700;
   color: var(--color-base);
 }
+.drop-sub-text {
+  font-size: 14px;
+  color: var(--color-base);
+  opacity: 0.8;
+  margin-top: -8px;
+}
 
 /* ドロップゾーン内: 選択ファイルプレビュー */
 .selected-preview {
@@ -312,6 +318,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.result-item:hover {
+  opacity: 0.9;
 }
 .result-thumb {
   width: 100%;

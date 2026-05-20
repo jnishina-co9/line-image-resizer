@@ -155,7 +155,7 @@ function renderResults() {
       </button>
     `;
 
-    div.querySelector('.btn-item-dl').addEventListener('click', () => {
+    div.addEventListener('click', () => {
       const a = document.createElement('a');
       a.href     = item.previewUrl;
       a.download = item.name;
@@ -256,6 +256,7 @@ DOM.resetBtn.addEventListener('click', () => {
   DOM.fileInput.value = '';
   clearError();
   renderResults();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 // ===== File Input =====
