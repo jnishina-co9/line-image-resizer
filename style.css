@@ -127,22 +127,6 @@ body {
   margin-top: -8px;
 }
 
-/* ドロップゾーン内: 選択ファイルプレビュー */
-.selected-preview {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px;
-  max-width: 696px; /* 1行に最大8枚（画像80px×8枚 + 隙間8px×7箇所）並ぶように制限 */
-}
-.preview-thumb {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  background-color: var(--color-base);
-  display: block;
-}
-
 /* ドロップゾーン内: ファイル名表示 */
 .file-name-display {
   font-size: 13px;
