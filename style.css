@@ -1,8 +1,8 @@
 /* ===== Variables ===== */
 :root {
   --color-base: #FFFFFF;
-  --color-main: #1D3FBB;
-  --color-accent: #E9E9E9;
+  --color-main: #00c9a7;
+  --color-accent: #EFEFEF;
   --font-base: 'Noto Sans JP', sans-serif;
   --font-accent: 'Outfit', sans-serif;
   --space-1: 8px;
@@ -158,7 +158,7 @@ body {
 /* ===== Spec Note ===== */
 .spec-note {
   border: 2px solid var(--color-main);
-  background-color: var(--color-main); /* 白文字を読めるように背景を青にする */
+  background-color: var(--color-main); /* 白文字を読めるように背景をメインカラーにする */
   padding: var(--space-2);
   margin-top: var(--space-2);
   margin-bottom: var(--space-2);
@@ -237,7 +237,7 @@ body {
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-primary i { color: var(--color-base); }
 
-/* リセットする（グレーカード内・白背景） */
+/* リセットする（ライトグレーカード内・白背景） */
 .btn-secondary {
   width: 100%;
   background: var(--color-base);
