@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IMAGE RESIZER — 仕様書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* =============================================
+     RESET & BASE
+  ============================================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* 4色パレット */
+    --color-main:         #007E66;   /* メインカラー（ダークグリーン） */
+    --color-base:         #FFFFFF;   /* ベースカラー（白） */
+    --color-sub:          #E7EAE7;   /* サブカラー（ライトグレーグリーン）※ページ背景にも使用 */
+    --color-accent:       #F25A86;   /* アクセントカラー（ピンク）※矢印などの差し色専用 */
+    --color-text:         #333333;   /* テキストカラー */
+
+    /* 派生色（4色から計算） */
+    --color-text-sub:     #6B7B6B;   /* 補助テキスト */
+    --color-border:       #D4D9D4;   /* ボーダー */
+    --color-main-light:   #E8F4F1;   /* メインカラーの極薄（ホバー背景） */
+    --color-accent-light: #FDEEF4;   /* アクセントカラーの極薄 */
+
+    /* フォント（Google Fonts + システムフォントフォールバック） */
+    --font-base:    'Noto Sans JP', 'Segoe UI', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+    --font-accent:  'Outfit', 'Segoe UI', -apple-system, sans-serif;
+
+    /* レイアウト */
+    --sidebar-width: 260px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-base);
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--color-text);
+    background: var(--color-sub);
+    min-height: 100vh;
+  }
+
+  /* =============================================
+     LAYOUT SHELL
+  ============================================= */
+  .layout {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* =============================================
+     SIDEBAR
+  ============================================= */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--color-base);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 100;
+    border-right: 1px solid var(--color-border);
+  }
+
+  .sidebar__brand {
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+  }
+
+  .sidebar__app-name {
+    font-family: var(--font-accent);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--color-main);
+    text-transform: uppercase;
+  }
+
+  .sidebar__doc-type {
+    font-size: 12px;
+    color: var(--color-text-sub);
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+  }
+
+  .sidebar__nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 0 24px;
+  }
+
+  .sidebar__nav::-webkit-scrollbar { width: 4px; }
+  .sidebar__nav::-webkit-scrollbar-track { background: transparent; }
+  .sidebar__nav::-webkit-scrollbar-thumb { background: var(--color-border); }
+
+  .nav__section-label {
+    font-family: var(--font-accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--color-text-sub);
+    text-transform: uppercase;
+    padding: 16px 24px 6px;
+  }
+
+  .nav__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 24px;
+    font-family: var(--font-accent);
+    font-size: 14px;
+    color: var(--color-text-sub);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+  }
+
+  .nav__item:hover {
+    background: var(--color-sub);
+    color: var(--color-text);
+  }
+
+  .nav__item.is-active {
+    background: var(--color-main-light);
+    color: var(--color-main);
+    border-left-color: var(--color-main);
+    font-weight: 700;
+  }
+
+  .nav__item-num {
+    font-family: var(--font-accent);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-main);
+    opacity: 0.6;
+    min-width: 20px;
+  }
+
+  .nav__item.is-active .nav__item-num { opacity: 1; }
+
+  /* =============================================
+     MAIN CONTENT
+  ============================================= */
+  .main {
+    margin-left: var(--sidebar-width);
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* =============================================
+     PAGE HEADER
+  ============================================= */
+  .page-header {
+    background: var(--color-main);
+    padding: 48px 64px;
+  }
+
+  .page-header__eyebrow {
+    font-family: var(--font-accent);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .page-header__title {
+    font-family: var(--font-accent);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-base);
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+  }
+
+  .page-header__subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.9);
+    margin-top: 8px;
+    font-weight: 500;
+  }
+
+  .page-header__meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+  }
+
+  .meta-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .meta-badge__label {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .meta-badge__value {
+    font-family: var(--font-accent);
+    font-size: 14px;
+    color: var(--color-base);
+    font-weight: 600;
+  }
+
+  /* =============================================
+     CONTENT AREA
+  ============================================= */
+  .content {
+    padding: 48px 64px;
+  }
+
+  /* =============================================
+     APP CARD (Section 0)
+  ============================================= */
+  .app-card {
+    background: var(--color-base);
+    padding: 40px;
+    margin-bottom: 48px;
+    border-left: 6px solid var(--color-main);
+  }
+
+  .app-card__title {
+    font-family: var(--font-accent);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--color-main);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .app-card__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .app-card__table tr {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .app-card__table tr:last-child { border-bottom: none; }
+
+  .app-card__table th {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-sub);
+    letter-spacing: 0.05em;
+    padding: 12px 16px 12px 0;
+    text-align: left;
+    white-space: nowrap;
+    width: 130px;
+    vertical-align: top;
+  }
+
+  .app-card__table td {
+    font-size: 16px;
+    color: var(--color-text);
+    padding: 12px 0;
+    vertical-align: top;
+  }
+
+  .tech-tag {
+    display: inline-block;
+    background: var(--color-sub);
+    color: var(--color-text);
+    font-size: 14px;
+    padding: 3px 10px;
+    font-family: var(--font-accent);
+    font-weight: 600;
+    margin: 2px 4px 2px 0;
+  }
+
+  .url-link {
+    font-family: var(--font-accent);
+    font-size: 14px;
+    color: var(--color-main);
+    text-decoration: none;
+    border-bottom: 1px solid var(--color-main);
+    padding-bottom: 1px;
+  }
+
+  /* =============================================
+     SECTION
+  ============================================= */
+  .spec-section {
+    margin-bottom: 40px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--color-main);
+  }
+
+  .section-num {
+    font-family: var(--font-accent);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--color-main);
+    opacity: 0.4;
+  }
+
+  .section-title {
+    font-family: var(--font-accent);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: 0.02em;
+  }
+
+  .section-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* =============================================
+     ACCORDION
+  ============================================= */
+  .accordion {
+    background: var(--color-base);
+    overflow: hidden;
+  }
+
+  .accordion__trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    gap: 12px;
+    transition: background 0.15s;
+  }
+
+  .accordion__trigger:hover { background: var(--color-main-light); }
+
+  .accordion__trigger-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .accordion__tag {
+    font-family: var(--font-accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    white-space: nowrap;
+    background: var(--color-sub);
+    color: var(--color-text-sub);
+  }
+
+  .accordion__title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-text);
+  }
+
+  .accordion__icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--color-accent);
+    transition: transform 0.25s ease;
+  }
+
+  .accordion.is-open .accordion__icon { transform: rotate(180deg); }
+
+  .accordion__body {
+    display: none;
+    padding: 12px 24px 24px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .accordion.is-open .accordion__body { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .accordion__body p {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--color-text);
+    margin-bottom: 12px;
+  }
+
+  .accordion__body p:last-child { margin-bottom: 0; }
+
+  /* =============================================
+     SPEC BLOCKS (前提・制約・決定理由)
+  ============================================= */
+  .block-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .spec-block {
+    padding: 16px 24px;
+    background: transparent;
+    border-left: 4px solid var(--color-text);
+  }
+
+  /* アコーディオンの直後に配置される縦線ブロックに上部余白を追加 */
+  .accordion + .spec-block,
+  .accordion + .block-grid {
+    margin-top: 32px;
+  }
+
+  .spec-block__label {
+    font-family: var(--font-accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    color: var(--color-text);
+  }
+
+  .spec-block ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .spec-block li {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--color-text);
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .spec-block li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 5px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+
+  /* =============================================
+     FLOW DIAGRAM
+  ============================================= */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: var(--color-base);
+    padding: 24px 24px 32px;
+  }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .flow-step__left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    align-self: stretch;
+  }
+
+  .flow-step__num {
+    width: 32px;
+    height: 32px;
+    background: var(--color-main);
+    color: var(--color-base);
+    font-family: var(--font-accent);
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .flow-step__line {
+    width: 2px;
+    flex: 1;
+    min-height: 32px;
+    background: var(--color-border);
+    margin: 0 auto;
+  }
+
+  .flow-step:last-child .flow-step__line { display: none; }
+
+  .flow-step__content {
+    padding-top: 0;
+    padding-bottom: 32px;
+  }
+
+  .flow-step:last-child .flow-step__content { padding-bottom: 0; }
+
+  .flow-step__title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-text);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .flow-step__desc {
+    font-size: 16px;
+    color: var(--color-text-sub);
+    line-height: 1.7;
+  }
+
+  /* =============================================
+     PAGE FOOTER
+  ============================================= */
+  .page-footer {
+    padding: 32px 64px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--color-text-sub);
+  }
+
+  /* =============================================
+     PROGRESS BAR
+  ============================================= */
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: var(--sidebar-width);
+    right: 0;
+    height: 3px;
+    background: var(--color-border);
+    z-index: 200;
+  }
+
+  .reading-progress__bar {
+    height: 100%;
+    background: var(--color-main);
+    width: 0%;
+    transition: width 0.1s linear;
+  }
+
+  /* =============================================
+     RESPONSIVE — デスクトップファースト 4段階
+  ============================================= */
+
+  /* XL: 大画面（1440px 以上） */
+  @media (min-width: 1440px) {
+    :root { --sidebar-width: 280px; }
+    .content { padding: 56px 80px; }
+    .page-header { padding: 56px 80px; }
+    .page-footer { padding: 24px 80px; }
+  }
+
+  /* M: タブレット（768–1023px） */
+  @media (max-width: 1023px) {
+    :root { --sidebar-width: 220px; }
+    .content { padding: 32px 40px; }
+    .page-header { padding: 40px; }
+    .page-footer { padding: 20px 40px; }
+    .block-grid { grid-template-columns: 1fr; }
+  }
+
+  /* S: スマホ（767px 以下） */
+  @media (max-width: 767px) {
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+    .sidebar.is-open { transform: translateX(0); }
+
+    .main { margin-left: 0; }
+    .page-footer {
+      padding: 16px 20px 24px;
+      flex-direction: column;
+      gap: 4px;
+      text-align: center;
+      font-size: 11px;
+    }
+    .reading-progress { left: 0; }
+    .page-header { padding: 56px 20px 32px; }
+    .page-header__title { font-size: 24px; }
+    .section-title { font-size: 16px; }
+    .section-num { font-size: 18px; }
+    .accordion__title, .flow-step__title { font-size: 14px; }
+    .accordion__body p, .spec-block li, .flow-step__desc, .app-card__table td { font-size: 14px; }
+    .nav__item, .app-card__table th, .meta-badge__value, .tech-tag, .url-link, .flow-step__num { font-size: 13px; }
+    .sidebar__doc-type, .nav__section-label, .nav__item-num, .meta-badge__label, .accordion__tag, .spec-block__label { font-size: 11px; }
+    .content { padding: 24px 20px; }
+    .block-grid { grid-template-columns: 1fr; }
+
+    /* メニューボタン（右上固定） */
+    .menu-toggle {
+      display: flex;
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      background: var(--color-main);
+      color: #fff;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 300;
+      border: none;
+      border-radius: 0;
+    }
+
+    /* トップへ戻るボタン（右下固定） */
+    .scroll-top-btn {
+      display: flex;
+    }
+
+    /* オーバーレイ */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 99;
+    }
+    .overlay.is-active { display: block; }
+  }
+
+  /* =============================================
+     SCROLL TO TOP BUTTON
+  ============================================= */
+  .scroll-top-btn {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    background: var(--color-text);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 200;
+    border: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .scroll-top-btn.is-visible { opacity: 1; }
+
+  /* =============================================
+     PRINT
+  ============================================= */
+  @media print {
+    .sidebar, .reading-progress, .menu-toggle, .scroll-top-btn { display: none !important; }
+    .main { margin-left: 0; }
+    .accordion__body { display: block !important; }
+    .accordion__icon { display: none; }
+    .page-header { background: none; padding: 0 0 24px; border-bottom: 2px solid #000; }
+    .page-header__title, .page-header__subtitle { color: #000; }
+    .page-header__eyebrow, .meta-badge__label { color: #666; }
+    .meta-badge__value { color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 読書進捗バー -->
+<div class="reading-progress" role="progressbar" aria-label="読書進捗">
+  <div class="reading-progress__bar" id="progressBar"></div>
+</div>
+
+<!-- モバイルオーバーレイ -->
+<div class="overlay" id="overlay"></div>
+
+<!-- メニューボタン（SP時・右上固定） -->
+<button class="menu-toggle" id="menuToggle" aria-label="目次を開く" style="display:none;">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+
+<!-- トップへ戻るボタン（SP時・右下固定） -->
+<button class="scroll-top-btn" id="scrollTopBtn" aria-label="ページ先頭に戻る">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+
+<div class="layout">
+
+  <!-- ======= SIDEBAR ======= -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="目次">
+    <div class="sidebar__brand">
+      <div class="sidebar__app-name">IMAGE RESIZER</div>
+      <div class="sidebar__doc-type">仕様書 — Specification v1.0</div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="nav__section-label">Overview</div>
+      <a class="nav__item" href="#sec-0" id="nav-0">
+        <span class="nav__item-num">00</span>Quick Summary
+      </a>
+
+      <div class="nav__section-label">Requirements</div>
+      <a class="nav__item" href="#sec-1" id="nav-1">
+        <span class="nav__item-num">01</span>アプリ概要
+      </a>
+      <a class="nav__item" href="#sec-2" id="nav-2">
+        <span class="nav__item-num">02</span>使用技術と選定理由
+      </a>
+      <a class="nav__item" href="#sec-3" id="nav-3">
+        <span class="nav__item-num">03</span>主な機能
+      </a>
+
+      <div class="nav__section-label">Design</div>
+      <a class="nav__item" href="#sec-4" id="nav-4">
+        <span class="nav__item-num">04</span>UI / UX の工夫
+      </a>
+      <a class="nav__item" href="#sec-5" id="nav-5">
+        <span class="nav__item-num">05</span>技術的工夫
+      </a>
+
+      <div class="nav__section-label">Architecture</div>
+      <a class="nav__item" href="#sec-6" id="nav-6">
+        <span class="nav__item-num">06</span>処理フロー
+      </a>
+      <a class="nav__item" href="#sec-7" id="nav-7">
+        <span class="nav__item-num">07</span>今後の改善案
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ======= MAIN ======= -->
+  <div class="main">
+
+    <!-- PAGE HEADER -->
+    <header class="page-header">
+      <div class="page-header__eyebrow">Specification Document</div>
+      <h1 class="page-header__title">IMAGE RESIZER</h1>
+      <div class="page-header__subtitle">LINEスタンプ特化型・画像リサイズツール</div>
+      <div class="page-header__meta">
+        <div class="meta-badge">
+          <span class="meta-badge__label">Version</span>
+          <span class="meta-badge__value">v1.0</span>
+        </div>
+        <div class="meta-badge">
+          <span class="meta-badge__label">Status</span>
+          <span class="meta-badge__value">公開中</span>
+        </div>
+        <div class="meta-badge">
+          <span class="meta-badge__label">Tech Stack</span>
+          <span class="meta-badge__value">HTML / CSS / JavaScript</span>
+        </div>
+        <div class="meta-badge">
+          <span class="meta-badge__label">Updated</span>
+          <span class="meta-badge__value">2026-05</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content">
+
+      <!-- ================================
+           SECTION 0: アプリカード
+      ================================ -->
+      <section class="spec-section" id="sec-0" aria-labelledby="title-0">
+        <div class="section-header">
+          <span class="section-num">00</span>
+          <h2 class="section-title" id="title-0">Quick Summary</h2>
+        </div>
+
+        <div class="app-card">
+          <div class="app-card__title">Quick Summary</div>
+          <table class="app-card__table">
+            <tbody>
+              <tr>
+                <th>アプリ概要</th>
+                <td>ブラウザ上で「審査規格サイズへのリサイズ」「余白の確保」「画質保護」を自動で行い、一括でPNG画像に変換・ZIP保存できる完全無料のWebツール</td>
+              </tr>
+              <tr>
+                <th>技術スタック</th>
+                <td>
+                  <span class="tech-tag">HTML</span>
+                  <span class="tech-tag">CSS</span>
+                  <span class="tech-tag">JavaScript</span>
+                  <span class="tech-tag">JSZip</span>
+                  <span class="tech-tag">Canvas API</span>
+                </td>
+              </tr>
+              <tr>
+                <th>最大の特徴</th>
+                <td>完全クライアントサイド処理。データを一切送信しないため、外部への画像漏洩リスクがなく安全</td>
+              </tr>
+              <tr>
+                <th>公開 URL</th>
+                <td>
+                  <a class="url-link" href="https://jnishina-co9.github.io/line-image-resizer/" target="_blank" rel="noopener">
+                    jnishina-co9.github.io/line-image-resizer/
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 前提・制約ブロック -->
+        <div class="block-grid">
+          <div class="spec-block spec-block--premise">
+            <div class="spec-block__label">前提条件</div>
+            <ul>
+              <li>モダンブラウザ（Google ChromeやSafari、Edgeなどの最新のインターネット閲覧ソフト）で動作</li>
+              <li>インストール不要・サーバー不要</li>
+              <li>完全無料・ログイン不要</li>
+            </ul>
+          </div>
+          <div class="spec-block spec-block--constraint">
+            <div class="spec-block__label">制約・スコープ外</div>
+            <ul>
+              <li>サーバーサイド処理は行わない</li>
+              <li>ユーザーデータの保存・管理機能なし</li>
+              <li>IE・旧ブラウザは非対応</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           SECTION 1: アプリ概要
+      ================================ -->
+      <section class="spec-section" id="sec-1" aria-labelledby="title-1">
+        <div class="section-header">
+          <span class="section-num">01</span>
+          <h2 class="section-title" id="title-1">アプリ概要</h2>
+        </div>
+        <div class="section-body">
+
+          <div class="accordion is-open" id="acc-1-1">
+            <button class="accordion__trigger" aria-expanded="true" aria-controls="body-1-1">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--feature">概要</span>
+                <span class="accordion__title">何を作ったか</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-1-1">
+              <p>LINEスタンプの制作ガイドラインで定められている、横370px × 縦320pxという画像サイズ規格に、選択した画像ファイルを一括で自動リサイズできるWebアプリケーションです。 ドラッグ＆ドロップするだけで、画像の縦横比を保ったまま最適なサイズに縮小し、必要な余白（上下左右10px以上）を自動的に作成して中央に配置します。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-1-2">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-1-2">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--rationale">背景・動機</span>
+                <span class="accordion__title">なぜ作ったか</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-1-2">
+              <p><strong>背景：</strong> LINEスタンプを制作・販売する際には、「サイズは横370px × 縦320pxであること」「イラストの周囲に10px以上の余白があること」「縦横のピクセル数値が偶数であること」など、非常に細かく厳しい画像規格をクリアする必要があります。</p>
+              <p><strong>課題：</strong> 専用の画像編集ソフト（PhotoshopやIllustratorなど）を持たない初心者クリエイターや、タブレット等の簡易アプリで描いている人にとって、この規格合わせは非常にハードルが高く、リジェクト（LINE事務局による審査落ち・不合格）の最も多い原因となっています。</p>
+              <p><strong>解決策：</strong> 手持ちのイラストファイルをブラウザに入れるだけで、一瞬で審査基準を満たす形に整えてくれる、最も手軽で安全なツールを目指し、本アプリを制作しました。</p>
+            </div>
+          </div>
+
+
+        </div>
+      </section>
+
+      <!-- ================================
+           SECTION 2: 使用技術と選定理由
+      ================================ -->
+      <section class="spec-section" id="sec-2" aria-labelledby="title-2">
+        <div class="section-header">
+          <span class="section-num">02</span>
+          <h2 class="section-title" id="title-2">使用技術と選定理由</h2>
+        </div>
+        <div class="section-body">
+
+          <div class="accordion is-open" id="acc-2-1">
+            <button class="accordion__trigger" aria-expanded="true" aria-controls="body-2-1">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--tech">コア技術</span>
+                <span class="accordion__title">HTML / CSS / JavaScript</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-2-1">
+              <p>外部のサーバーや特別なプログラムの実行環境を必要とせず、お使いの端末のブラウザ（Webページを見るソフト）に標準で備わっている機能だけで、高速な画面表示と滑らかな操作感を実現するため、これら3つの最も基本的な技術のみで構築しました。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-2-2">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-2-2">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--tech">描画処理</span>
+                <span class="accordion__title">Canvas API</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-2-2">
+              <p>ブラウザ上で直接イラストを描画したり、大きさを変更したりするためのブラウザ標準の画像加工機能です。これを使うことで、ユーザーの画像を一度外部のサーバーへ送信することなく、すべて手元のブラウザ内だけで超高速かつ安全に画像のリサイズと余白の合成が行えます。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-2-3">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-2-3">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--tech">ライブラリ</span>
+                <span class="accordion__title">JSZip</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-2-3">
+              <p>ブラウザのプログラム上で、複数のファイルを自動的にZIPファイルとして圧縮してダウンロードさせるための軽量ライブラリ（外部のプログラム部品）です。LINEスタンプは最大40個（1セット）の画像を一度に申請するため、1つずつ手動で保存する手間を解消し、ワンクリックでまとめられるUX（ユーザーがアプリから得る心地よい使用体験）を実現するために導入しました。</p>
+            </div>
+          </div>
+
+            <div class="spec-block spec-block--premise">
+              <div class="spec-block__label">アプリの動作ルール</div>
+              <ul>
+                <li>外部のプログラム部品（ライブラリ）はインターネット経由で読み込む</li>
+                <li>事前の変換作業や特別な開発用ツールは使わず、ブラウザでそのまま動く仕組みにしている</li>
+              </ul>
+            </div>
+            <div class="spec-block spec-block--constraint" style="margin-top: 24px;">
+              <div class="spec-block__label">ご利用時の注意点</div>
+              <ul>
+                <li>セキュリティ上の制限（CORS）があるため、インターネット上の画像URLから直接読み込むことはできない</li>
+                <li>大量の画像を一度に読み込ませた場合、端末のメモリ制限による動作低下に注意する必要がある（40枚までは検証済み）</li>
+              </ul>
+            </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           SECTION 3: 主な機能
+      ================================ -->
+      <section class="spec-section" id="sec-3" aria-labelledby="title-3">
+        <div class="section-header">
+          <span class="section-num">03</span>
+          <h2 class="section-title" id="title-3">主な機能</h2>
+        </div>
+        <div class="section-body">
+
+          <div class="accordion is-open" id="acc-3-1">
+            <button class="accordion__trigger" aria-expanded="true" aria-controls="body-3-1">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--feature">機能</span>
+                <span class="accordion__title">一括ドラッグ＆ドロップ画像選択</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-3-1">
+              <p>枠内に複数のイラストファイルをまとめて直接ドラッグ＆ドロップするだけで、自動的に一括処理がスタートします。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-3-2">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-3-2">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--feature">機能</span>
+                <span class="accordion__title">アスペクト比（縦横比）の維持リサイズ</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-3-2">
+              <p>元の画像がどのような形状（正方形、長方形など）であっても、縦横の比率を崩さず綺麗な形のまま自動的に縮小します。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-3-3">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-3-3">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--feature">機能</span>
+                <span class="accordion__title">自動余白生成と中央配置</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-3-3">
+              <p>LINEスタンプの審査基準である「10px以上の余白」を必ず確保するために、最大描画サイズを「350px × 300px」に制限し、370px × 320pxのキャンバスの中心にぴったり自動配置します。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-3-4">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-3-4">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--feature">機能</span>
+                <span class="accordion__title">リサイズ画質の劣化保護（高画質リサイズ）</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-3-4">
+              <p>ブラウザの描画設定には、画像を縮小する際にギザギザやぼやけを抑えて高画質に補正する設定を適用し、解像度が下がってもイラストの線画をきれいに保ちます。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-3-5">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-3-5">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--feature">機能</span>
+                <span class="accordion__title">奇数ピクセル防止機能（偶数丸め処理）</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-3-5">
+              <p>計算上のリサイズ後のサイズや、描画する位置の座標に小数や奇数が生じた場合、自動的にそれを「偶数の整数」に切り捨てる自作の調整ロジックを搭載し、偶数ルールによる審査落ち（リジェクト）を先回りして防ぎます。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-3-6">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-3-6">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--feature">機能</span>
+                <span class="accordion__title">個別ダウンロード ＆ 一括ZIP保存</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-3-6">
+              <p>変換後の画像を1枚ずつ確認して個別にダウンロードできるほか、すべての画像をワンクリックでZIPフォルダにまとめて保存できるダウンロードボタンを用意しています。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-3-7">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-3-7">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--feature">機能</span>
+                <span class="accordion__title">クリーンなリセット機能（メモリ解放）</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-3-7">
+              <p>リセットボタンを押すことで、画面上の画像表示を消去し、データを完全に破棄する関数を実行してブラウザの動作が重くなるのを防ぎます。同時に、画面の最上部へ自動スクロールし、次の作業に即座に移れるようにしています。</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================================
+           SECTION 4: UI / UX の工夫
+      ================================ -->
+      <section class="spec-section" id="sec-4" aria-labelledby="title-4">
+        <div class="section-header">
+          <span class="section-num">04</span>
+          <h2 class="section-title" id="title-4">UI / UX の工夫</h2>
+        </div>
+        <div class="section-body">
+
+          <div class="accordion is-open" id="acc-4-1">
+            <button class="accordion__trigger" aria-expanded="true" aria-controls="body-4-1">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--design">デザイン</span>
+                <span class="accordion__title">3色限定・フラットデザイン</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-4-1">
+              <p>画面で使用する色彩を、白、エメラルドグリーン、明るいグレーの3色だけに制限し、枠線や影、角の丸みを一切排除しました。無駄な視覚的ノイズを極限まで削ぎ落とすことで、ユーザーが「どの画像を選び、どこを操作すべきか」を感覚的に認識できるミニマルな画面設計にしています。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-4-2">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-4-2">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--design">UX</span>
+                <span class="accordion__title">上から下へ流れるステップ形式のレイアウト</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-4-2">
+              <p>画面構成を「1. 画像を選択（入力エリア）」と「2. 変換結果（出力エリア）」の2つのカード状の面に整理して縦に配置しました。ユーザーが上から順に操作するだけで迷わず目的を達成できるよう設計しています。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-4-3">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-4-3">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--design">UX</span>
+                <span class="accordion__title">直感的な操作感とインタラクション</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-4-3">
+              <p>画像をドラッグすると、エリアの背景色が半透明に変化し、ファイルをここに落とせば良いという指示を直感的に伝えます。また、変換後の各画像のダウンロード操作では、画像を含む枠全体をクリック領域とし、マウスカーソルを乗せた際に枠全体がハイライトするフィードバックを追加しました。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-4-4">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-4-4">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--design">デザイン</span>
+                <span class="accordion__title">LINEスタンプの制作単位に合わせた「8枚単位」の整列表示</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-4-4">
+              <p>画像を選択した際のサムネイル一覧では、1行に最大8枚並ぶように表示幅を制限しました。LINEスタンプの申請・販売単位（8枚、16枚、24枚、32枚、40枚）に合わせて自動的に改行されるため、何セット分の画像をアップロードしたかを直感的に確認できるよう配慮しています。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           SECTION 5: 技術的工夫
+      ================================ -->
+      <section class="spec-section" id="sec-5" aria-labelledby="title-5">
+        <div class="section-header">
+          <span class="section-num">05</span>
+          <h2 class="section-title" id="title-5">技術的工夫（差別化ポイント）</h2>
+        </div>
+        <div class="section-body">
+
+          <div class="accordion is-open" id="acc-5-1">
+            <button class="accordion__trigger" aria-expanded="true" aria-controls="body-5-1">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--tech">セキュリティ</span>
+                <span class="accordion__title">100%サーバーレスでのプライバシー保護処理</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-5-1">
+              <p>画像データをインターネット経由でサーバーに送信しないため、大切な創作イラストが外部に漏洩する心配がありません。ユーザー自身の端末上だけで処理が完結するため、安全でプライベートな環境を提供しています。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-5-3">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-5-3">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--tech">コア技術</span>
+                <span class="accordion__title">小さなイラストを無理に引き伸ばさない画質保護設計</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-5-3">
+              <p>元の画像サイズが規定サイズ（横350px × 縦300px）よりも小さい場合、通常のツールは全体を拡大して引き伸ばしてしまいます。本ツールは、小さい画像はあえて等倍で配置し、空いた周囲の余白を自動的に大きく広げる判定ロジックを搭載しています。これにより、画質を一切荒らすことなく、綺麗なままのスタンプを作成できます。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-5-4">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-5-4">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--tech">パフォーマンス</span>
+                <span class="accordion__title">メモリリークを防ぐ軽快な動作設計</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-5-4">
+              <p>画像変換が完了した直後や、リセットボタンを押したタイミングで、メモリ上の不要なデータを完全に消去・破棄する関数を実行し、何十枚の画像を繰り返し処理してもブラウザの動作が徐々に重くなる現象（メモリリーク：メモリの空き容量が減っていく不具合）を防ぎ、常に軽快な動作を維持します。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           SECTION 6: 処理フロー
+      ================================ -->
+      <section class="spec-section" id="sec-6" aria-labelledby="title-6">
+        <div class="section-header">
+          <span class="section-num">06</span>
+          <h2 class="section-title" id="title-6">処理フロー</h2>
+        </div>
+
+        <div class="flow">
+          <div class="flow-step">
+            <div class="flow-step__left">
+              <div class="flow-step__num">1</div>
+              <div class="flow-step__line"></div>
+            </div>
+            <div class="flow-step__content">
+              <div class="flow-step__title">画像ファイルを指定</div>
+              <div class="flow-step__desc">ドラッグ＆ドロップまたはファイル選択ダイアログから画像を読み込む</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__left">
+              <div class="flow-step__num">2</div>
+              <div class="flow-step__line"></div>
+            </div>
+            <div class="flow-step__content">
+              <div class="flow-step__title">非同期処理での読み込み</div>
+              <div class="flow-step__desc">実行中のプログラムを止めずに他の処理を並行して進める技術を用いて、画像を1枚ずつブラウザのメモリ上に一時読み込みする</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__left">
+              <div class="flow-step__num">3</div>
+              <div class="flow-step__line"></div>
+            </div>
+            <div class="flow-step__content">
+              <div class="flow-step__title">リサイズ倍率の計算</div>
+              <div class="flow-step__desc">イラストの元の縦横比を崩さずに、幅350px × 高さ300px以内に収まるリサイズ倍率を計算する</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__left">
+              <div class="flow-step__num">4</div>
+              <div class="flow-step__line"></div>
+            </div>
+            <div class="flow-step__content">
+              <div class="flow-step__title">偶数化処理</div>
+              <div class="flow-step__desc">計算されたサイズと、中央に配置するための座標を、自動的に偶数の整数に変換する</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__left">
+              <div class="flow-step__num">5</div>
+              <div class="flow-step__line"></div>
+            </div>
+            <div class="flow-step__content">
+              <div class="flow-step__title">Canvasへの描画</div>
+              <div class="flow-step__desc">オフスクリーンCanvasに、高画質設定でイラストを描画する</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__left">
+              <div class="flow-step__num">6</div>
+              <div class="flow-step__line"></div>
+            </div>
+            <div class="flow-step__content">
+              <div class="flow-step__title">Blob変換</div>
+              <div class="flow-step__desc">描画したデータをPNG形式のバイナリデータ（Blob）に変換する</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__left">
+              <div class="flow-step__num">7</div>
+              <div class="flow-step__line"></div>
+            </div>
+            <div class="flow-step__content">
+              <div class="flow-step__title">プレビュー表示</div>
+              <div class="flow-step__desc">BlobデータにObjectURLを割り当て、画面にサムネイル一覧として表示する</div>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step__left">
+              <div class="flow-step__num">8</div>
+              <div class="flow-step__line"></div>
+            </div>
+            <div class="flow-step__content">
+              <div class="flow-step__title">保存処理</div>
+              <div class="flow-step__desc">JSZipを使用し、一括ZIP保存または個別保存を実行する</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================
+           SECTION 7: 今後の改善案
+      ================================ -->
+      <section class="spec-section" id="sec-7" aria-labelledby="title-7">
+        <div class="section-header">
+          <span class="section-num">07</span>
+          <h2 class="section-title" id="title-7">今後の改善案</h2>
+        </div>
+        <div class="section-body">
+
+          <div class="accordion is-open" id="acc-7-1">
+            <button class="accordion__trigger" aria-expanded="true" aria-controls="body-7-1">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--future">将来</span>
+                <span class="accordion__title">余白サイズの調整スライダー機能</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-7-1">
+              <p>LINEスタンプの規定（10px以上）は満たしつつ、余白をもっと広く取って、キャラクターをあえて小さく可愛く見せたいクリエイター向けに、スライダーで余白サイズを自由に変更できる調整機能を追加します。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-7-2">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-7-2">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--future">将来</span>
+                <span class="accordion__title">画像容量（ファイルサイズ）のリアルタイム警告表示</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-7-2">
+              <p>LINEスタンプの「1枚あたり1MB以下」という容量制限に対応し、プレビュー時に画像容量を自動算出して画面に表示し、1MBを超えている場合は「容量オーバーです」と警告する機能を追加します。</p>
+            </div>
+          </div>
+
+          <div class="accordion" id="acc-7-3">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-7-3">
+              <div class="accordion__trigger-left">
+                <span class="accordion__tag accordion__tag--future">将来</span>
+                <span class="accordion__title">スタンプ別規格（メイン画像、タブ画像）の一括自動振り分け</span>
+              </div>
+              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="accordion__body" id="body-7-3">
+              <p>申請時に必要な「メイン画像（240×240px）」や、トーク画面用の「タブ画像（96×74px）」も、アップロードされた画像のファイル名（例：<code>main.png</code> や <code>tab.png</code>）から自動判定して、それぞれ正しい規格サイズに自動で振り分けてリサイズ処理する機能を検討しています。</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main><!-- /content -->
+
+    <!-- PAGE FOOTER -->
+    <footer class="page-footer" role="contentinfo">
+      <span>© 2026 深森呼吸</span>
+      <span>本資料の転載・複製・改変を禁止します</span>
+    </footer>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+  // ======================================================
+  // ACCORDION
+  // ======================================================
+  document.querySelectorAll('.accordion__trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const accordion = btn.closest('.accordion');
+      const isOpen = accordion.classList.contains('is-open');
+
+      accordion.classList.toggle('is-open', !isOpen);
+      btn.setAttribute('aria-expanded', String(!isOpen));
+    });
+  });
+
+  // ======================================================
+  // READING PROGRESS BAR
+  // ======================================================
+  const progressBar = document.getElementById('progressBar');
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = progress + '%';
+  });
+
+  // ======================================================
+  // SIDEBAR ACTIVE HIGHLIGHT
+  // ======================================================
+  const sections = document.querySelectorAll('.spec-section[id]');
+  const navItems = document.querySelectorAll('.nav__item[id]');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id.replace('sec-', '');
+        navItems.forEach(item => item.classList.remove('is-active'));
+        const active = document.getElementById('nav-' + id);
+        if (active) active.classList.add('is-active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ======================================================
+  // MOBILE UI CONTROL
+  // ======================================================
+  const sidebar      = document.getElementById('sidebar');
+  const overlay      = document.getElementById('overlay');
+  const toggle       = document.getElementById('menuToggle');
+  const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+  const isMobile = () => window.innerWidth <= 767;
+
+  function updateMobileUI() {
+    const mobile = isMobile();
+    toggle.style.display = mobile ? 'flex' : 'none';
+    if (!mobile) {
+      scrollTopBtn.style.display = 'none';
+    } else {
+      scrollTopBtn.style.display = 'flex';
+    }
+  }
+
+  // メニューボタン（右上）
+  toggle.addEventListener('click', () => {
+    sidebar.classList.toggle('is-open');
+    overlay.classList.toggle('is-active');
+  });
+
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('is-open');
+    overlay.classList.remove('is-active');
+  });
+
+  // サイドバーリンクをクリックしたらSPでは閉じる
+  document.querySelectorAll('.nav__item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (isMobile()) {
+        sidebar.classList.remove('is-open');
+        overlay.classList.remove('is-active');
+      }
+    });
+  });
+
+  // トップへ戻るボタン（右下）：スクロール200px超で表示
+  window.addEventListener('scroll', () => {
+    if (isMobile()) {
+      scrollTopBtn.classList.toggle('is-visible', window.scrollY > 200);
+    }
+  });
+
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  window.addEventListener('resize', updateMobileUI);
+  updateMobileUI();
+</script>
+
+</body>
+</html>
