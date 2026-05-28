@@ -85,6 +85,14 @@
     color: var(--color-main);
     text-transform: uppercase;
   }
+  .sidebar__app-name a {
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .sidebar__app-name a:hover {
+    opacity: 0.7;
+  }
 
   .sidebar__doc-type {
     font-size: 12px;
@@ -723,7 +731,7 @@
   <!-- ======= SIDEBAR ======= -->
   <aside class="sidebar" id="sidebar" role="navigation" aria-label="目次">
     <div class="sidebar__brand">
-      <div class="sidebar__app-name">IMAGE RESIZER</div>
+      <div class="sidebar__app-name"><a href="#">IMAGE RESIZER</a></div>
       <div class="sidebar__doc-type">仕様書 — Specification v1.0</div>
     </div>
 
@@ -1201,7 +1209,7 @@
             </div>
             <div class="flow-step__content">
               <div class="flow-step__title">画像ファイルを指定</div>
-              <div class="flow-step__desc">ドラッグ＆ドロップまたはファイル選択ダイアログから画像を読み込む</div>
+              <div class="flow-step__desc">ドラッグ＆ドロップまたはファイル選択画面から画像を読み込む</div>
             </div>
           </div>
           <div class="flow-step">
@@ -1211,7 +1219,7 @@
             </div>
             <div class="flow-step__content">
               <div class="flow-step__title">非同期処理での読み込み</div>
-              <div class="flow-step__desc">実行中のプログラムを止めずに他の処理を並行して進める技術を用いて、画像を1枚ずつブラウザのメモリ上に一時読み込みする</div>
+              <div class="flow-step__desc">複数枚をスムーズに同時処理するため、画像をメモリ上に一時保存する</div>
             </div>
           </div>
           <div class="flow-step">
@@ -1221,7 +1229,7 @@
             </div>
             <div class="flow-step__content">
               <div class="flow-step__title">リサイズ倍率の計算</div>
-              <div class="flow-step__desc">イラストの元の縦横比を崩さずに、幅350px × 高さ300px以内に収まるリサイズ倍率を計算する</div>
+              <div class="flow-step__desc">縦横比を崩さず、規定サイズ（350×300px）に収まる縮小率を計算する</div>
             </div>
           </div>
           <div class="flow-step">
@@ -1231,7 +1239,7 @@
             </div>
             <div class="flow-step__content">
               <div class="flow-step__title">偶数化処理</div>
-              <div class="flow-step__desc">計算されたサイズと、中央に配置するための座標を、自動的に偶数の整数に変換する</div>
+              <div class="flow-step__desc">LINEのルールに合わせるため、サイズと配置位置の数値を偶数に整える</div>
             </div>
           </div>
           <div class="flow-step">
@@ -1241,7 +1249,7 @@
             </div>
             <div class="flow-step__content">
               <div class="flow-step__title">Canvasへの描画</div>
-              <div class="flow-step__desc">オフスクリーンCanvasに、高画質設定でイラストを描画する</div>
+              <div class="flow-step__desc">画面に見えない仮想の作業台の上で、画像をきれいに描き直す</div>
             </div>
           </div>
           <div class="flow-step">
@@ -1251,7 +1259,7 @@
             </div>
             <div class="flow-step__content">
               <div class="flow-step__title">Blob変換</div>
-              <div class="flow-step__desc">描画したデータをPNG形式のバイナリデータ（Blob）に変換する</div>
+              <div class="flow-step__desc">描き直したイラストを、スタンプ保存用のPNG画像データに変換する</div>
             </div>
           </div>
           <div class="flow-step">
@@ -1261,7 +1269,7 @@
             </div>
             <div class="flow-step__content">
               <div class="flow-step__title">プレビュー表示</div>
-              <div class="flow-step__desc">BlobデータにObjectURLを割り当て、画面にサムネイル一覧として表示する</div>
+              <div class="flow-step__desc">変換が終わった画像を、画面上に仕上がりプレビューとして一覧表示する</div>
             </div>
           </div>
           <div class="flow-step">
@@ -1271,7 +1279,7 @@
             </div>
             <div class="flow-step__content">
               <div class="flow-step__title">保存処理</div>
-              <div class="flow-step__desc">JSZipを使用し、一括ZIP保存または個別保存を実行する</div>
+              <div class="flow-step__desc">画像を1枚ずつ個別に保存するか、まとめて1つのZIPファイルで保存する</div>
             </div>
           </div>
         </div>
@@ -1296,7 +1304,7 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-7-1">
-              <p>LINEスタンプの規定（10px以上）は満たしつつ、余白をもっと広く取って、キャラクターをあえて小さく可愛く見せたいクリエイター向けに、スライダーで余白サイズを自由に変更できる調整機能を追加します。</p>
+              <p>LINEスタンプの規定（10px以上）は満たしつつ、余白をもっと広く取って、キャラクターをあえて小さく可愛く見せたいクリエイター向けに、スライダーで余白サイズを自由に変更できる調整機能の追加を検討しています。</p>
             </div>
           </div>
 
@@ -1309,22 +1317,11 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-7-2">
-              <p>LINEスタンプの「1枚あたり1MB以下」という容量制限に対応し、プレビュー時に画像容量を自動算出して画面に表示し、1MBを超えている場合は「容量オーバーです」と警告する機能を追加します。</p>
+              <p>LINEスタンプの「1枚あたり1MB以下」という容量制限に対応し、プレビュー時に画像容量を自動算出して画面に表示し、1MBを超えている場合は「容量オーバーです」と警告する機能の追加を考えています。</p>
             </div>
           </div>
 
-          <div class="accordion" id="acc-7-3">
-            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-7-3">
-              <div class="accordion__trigger-left">
-                <span class="accordion__tag accordion__tag--future">将来</span>
-                <span class="accordion__title">スタンプ別規格（メイン画像、タブ画像）の一括自動振り分け</span>
-              </div>
-              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="accordion__body" id="body-7-3">
-              <p>申請時に必要な「メイン画像（240×240px）」や、トーク画面用の「タブ画像（96×74px）」も、アップロードされた画像のファイル名（例：<code>main.png</code> や <code>tab.png</code>）から自動判定して、それぞれ正しい規格サイズに自動で振り分けてリサイズ処理する機能を検討しています。</p>
-            </div>
-          </div>
+
 
         </div>
       </section>
