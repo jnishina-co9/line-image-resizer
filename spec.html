@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IMAGE RESIZER — 仕様書</title>
+<title>IMAGE RESIZER — プロダクト仕様書</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
@@ -553,6 +553,20 @@
     line-height: 1.7;
   }
 
+  .demo-video-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 800px; /* サイズを大きめに調整 */
+    margin: 16px auto 0 auto; /* 中央寄せ */
+  }
+
+  .demo-video-wrapper video {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--color-border);
+  }
+
   /* =============================================
      PAGE FOOTER
   ============================================= */
@@ -732,7 +746,7 @@
   <aside class="sidebar" id="sidebar" role="navigation" aria-label="目次">
     <div class="sidebar__brand">
       <div class="sidebar__app-name"><a href="#">IMAGE RESIZER</a></div>
-      <div class="sidebar__doc-type">仕様書 — Specification v1.0</div>
+      <div class="sidebar__doc-type">プロダクト仕様書 v1.0</div>
     </div>
 
     <nav class="sidebar__nav">
@@ -775,7 +789,7 @@
 
     <!-- PAGE HEADER -->
     <header class="page-header">
-      <div class="page-header__eyebrow">Specification Document</div>
+      <div class="page-header__eyebrow">PRODUCT SPECIFICATION</div>
       <h1 class="page-header__title">IMAGE RESIZER</h1>
       <div class="page-header__subtitle">LINEスタンプ特化型・画像リサイズツール</div>
       <div class="page-header__meta">
@@ -816,7 +830,7 @@
             <tbody>
               <tr>
                 <th>アプリ概要</th>
-                <td>ブラウザ上で「審査規格サイズへのリサイズ」「余白の確保」「画質保護」を自動で行い、一括でPNG画像に変換・ZIP保存できる完全無料のWebツール</td>
+                <td>ブラウザ上で審査規格サイズへのリサイズ、余白の確保、画質保護を自動で行い、一括でPNG画像に変換・ZIP保存できる完全無料のWebツール</td>
               </tr>
               <tr>
                 <th>技術スタック</th>
@@ -884,7 +898,8 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-1-1">
-              <p>LINEスタンプの制作ガイドラインで定められている、横370px × 縦320pxという画像サイズ規格に、選択した画像ファイルを一括で自動リサイズできるWebアプリケーションです。 ドラッグ＆ドロップするだけで、画像の縦横比を保ったまま最適なサイズに縮小し、必要な余白（上下左右10px以上）を自動的に作成して中央に配置します。</p>
+              <p>LINEスタンプの制作ガイドラインで定められている画像サイズ規格（横370px × 縦320px）に、選択した画像ファイルを一括で自動リサイズできるWebアプリケーションです。<br>
+              ドラッグ＆ドロップするだけで、画像の縦横比を保ったまま最適なサイズに縮小し、必要な余白（上下左右10px以上）を自動的に作成して中央に配置します。</p>
             </div>
           </div>
 
@@ -899,10 +914,18 @@
             <div class="accordion__body" id="body-1-2">
               <p><strong>背景：</strong> LINEスタンプを制作・販売する際には、「サイズは横370px × 縦320pxであること」「イラストの周囲に10px以上の余白があること」「縦横のピクセル数値が偶数であること」など、非常に細かく厳しい画像規格をクリアする必要があります。</p>
               <p><strong>課題：</strong> 専用の画像編集ソフト（PhotoshopやIllustratorなど）を持たない初心者クリエイターや、タブレット等の簡易アプリで描いている人にとって、この規格合わせは非常にハードルが高く、リジェクト（LINE事務局による審査落ち・不合格）の最も多い原因となっています。</p>
-              <p><strong>解決策：</strong> 手持ちのイラストファイルをブラウザに入れるだけで、一瞬で審査基準を満たす形に整えてくれる、最も手軽で安全なツールを目指し、本アプリを制作しました。</p>
+              <p><strong>解決策：</strong> 手持ちのイラストファイルをブラウザに入れるだけで自動で審査基準を満たす形に整えてくれる、手軽で安全なツールを目指して本アプリを制作しました。</p>
             </div>
           </div>
 
+          <div class="spec-block" style="margin-top: 32px;">
+            <div class="spec-block__label">デモ動画</div>
+            <div class="demo-video-wrapper">
+              <video src="demo.mp4" preload="metadata" autoplay loop muted playsinline controls>
+                お使いのブラウザは動画の再生に対応していません。
+              </video>
+            </div>
+          </div>
 
         </div>
       </section>
@@ -926,7 +949,7 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-2-1">
-              <p>外部のサーバーや特別なプログラムの実行環境を必要とせず、お使いの端末のブラウザ（Webページを見るソフト）に標準で備わっている機能だけで、高速な画面表示と滑らかな操作感を実現するため、これら3つの最も基本的な技術のみで構築しました。</p>
+              <p>外部のサーバーや特別なプログラムの実行環境を必要とせず、お使いの端末のブラウザに標準で備わっている機能だけで、高速な画面表示と滑らかな操作感を実現するため、これら3つの最も基本的な技術のみで構築しました。</p>
             </div>
           </div>
 
@@ -952,14 +975,14 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-2-3">
-              <p>ブラウザのプログラム上で、複数のファイルを自動的にZIPファイルとして圧縮してダウンロードさせるための軽量ライブラリ（外部のプログラム部品）です。LINEスタンプは最大40個（1セット）の画像を一度に申請するため、1つずつ手動で保存する手間を解消し、ワンクリックでまとめられるUX（ユーザーがアプリから得る心地よい使用体験）を実現するために導入しました。</p>
+              <p>ブラウザのプログラム上で、複数のファイルを自動的にZIPファイルとして圧縮してダウンロードさせるための軽量ライブラリ（外部のプログラム部品）です。LINEスタンプは最大40個（1セット）の画像を一度に申請するため、1つずつ手動で保存する手間を解消し、ワンクリックでまとめられるUXを実現するために導入しました。</p>
             </div>
           </div>
 
             <div class="spec-block spec-block--premise">
               <div class="spec-block__label">アプリの動作ルール</div>
               <ul>
-                <li>外部のプログラム部品（ライブラリ）はインターネット経由で読み込む</li>
+                <li>外部のプログラム部品はインターネット経由で読み込む</li>
                 <li>事前の変換作業や特別な開発用ツールは使わず、ブラウザでそのまま動く仕組みにしている</li>
               </ul>
             </div>
@@ -1018,7 +1041,7 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-3-3">
-              <p>LINEスタンプの審査基準である「10px以上の余白」を必ず確保するために、最大描画サイズを「350px × 300px」に制限し、370px × 320pxのキャンバスの中心にぴったり自動配置します。</p>
+              <p>LINEスタンプの審査基準である「10px以上の余白」を必ず確保するために、最大描画サイズを350px × 300pxに制限し、370px × 320pxのキャンバスの中心にぴったり自動配置します。</p>
             </div>
           </div>
 
@@ -1044,7 +1067,7 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-3-5">
-              <p>計算上のリサイズ後のサイズや、描画する位置の座標に小数や奇数が生じた場合、自動的にそれを「偶数の整数」に切り捨てる自作の調整ロジックを搭載し、偶数ルールによる審査落ち（リジェクト）を先回りして防ぎます。</p>
+              <p>計算上のリサイズ後のサイズや、描画する位置の座標に小数や奇数が生じた場合、自動的にそれを「偶数の整数」に切り捨てる自作の調整ロジックを搭載し、偶数ルールによるリジェクトを先回りして防ぎます。</p>
             </div>
           </div>
 
