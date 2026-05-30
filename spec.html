@@ -752,7 +752,7 @@
     <nav class="sidebar__nav">
       <div class="nav__section-label">Overview</div>
       <a class="nav__item" href="#sec-0" id="nav-0">
-        <span class="nav__item-num">00</span>Quick Summary
+        <span class="nav__item-num">00</span>基本情報
       </a>
 
       <div class="nav__section-label">Requirements</div>
@@ -778,8 +778,10 @@
       <a class="nav__item" href="#sec-6" id="nav-6">
         <span class="nav__item-num">06</span>処理フロー
       </a>
+
+      <div class="nav__section-label">Conclusion</div>
       <a class="nav__item" href="#sec-7" id="nav-7">
-        <span class="nav__item-num">07</span>今後の改善案
+        <span class="nav__item-num">07</span>おわりに
       </a>
     </nav>
   </aside>
@@ -821,7 +823,7 @@
       <section class="spec-section" id="sec-0" aria-labelledby="title-0">
         <div class="section-header">
           <span class="section-num">00</span>
-          <h2 class="section-title" id="title-0">Quick Summary</h2>
+          <h2 class="section-title" id="title-0">基本情報</h2>
         </div>
 
         <div class="app-card">
@@ -979,20 +981,20 @@
             </div>
           </div>
 
-            <div class="spec-block spec-block--premise">
-              <div class="spec-block__label">アプリの動作ルール</div>
-              <ul>
-                <li>外部のプログラム部品はインターネット経由で読み込む</li>
-                <li>事前の変換作業や特別な開発用ツールは使わず、ブラウザでそのまま動く仕組みにしている</li>
-              </ul>
-            </div>
-            <div class="spec-block spec-block--constraint" style="margin-top: 24px;">
-              <div class="spec-block__label">ご利用時の注意点</div>
-              <ul>
-                <li>セキュリティ上の制限（CORS）があるため、インターネット上の画像URLから直接読み込むことはできない</li>
-                <li>大量の画像を一度に読み込ませた場合、端末のメモリ制限による動作低下に注意する必要がある（40枚までは検証済み）</li>
-              </ul>
-            </div>
+          <div class="spec-block spec-block--premise">
+            <div class="spec-block__label">アプリの動作ルール</div>
+            <ul>
+              <li>外部のプログラム部品はインターネット経由で読み込む</li>
+              <li>事前の変換作業や特別な開発用ツールは使わず、ブラウザでそのまま動く仕組みにしている</li>
+            </ul>
+          </div>
+          <div class="spec-block spec-block--constraint">
+            <div class="spec-block__label">ご利用時の注意点</div>
+            <ul>
+              <li>セキュリティ上の制限（CORS）があるため、インターネット上の画像URLから直接読み込むことはできない</li>
+              <li>大量の画像を一度に読み込ませた場合、端末のメモリ制限による動作低下に注意する必要がある（40枚までは検証済み）</li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -1314,38 +1316,13 @@
       <section class="spec-section" id="sec-7" aria-labelledby="title-7">
         <div class="section-header">
           <span class="section-num">07</span>
-          <h2 class="section-title" id="title-7">今後の改善案</h2>
+          <h2 class="section-title" id="title-7">おわりに</h2>
         </div>
         <div class="section-body">
-
-          <div class="accordion is-open" id="acc-7-1">
-            <button class="accordion__trigger" aria-expanded="true" aria-controls="body-7-1">
-              <div class="accordion__trigger-left">
-                <span class="accordion__tag accordion__tag--future">将来</span>
-                <span class="accordion__title">余白サイズの調整スライダー機能</span>
-              </div>
-              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="accordion__body" id="body-7-1">
-              <p>LINEスタンプの規定（10px以上）は満たしつつ、余白をもっと広く取って、キャラクターをあえて小さく可愛く見せたいクリエイター向けに、スライダーで余白サイズを自由に変更できる調整機能の追加を検討しています。</p>
-            </div>
+          <div style="background: var(--color-base); padding: 32px 40px; font-size: 16px; line-height: 1.9;">
+            <p style="margin-bottom: 16px;">「画像編集ソフトを持たないクリエイターでも、煩雑なサイズ調整で審査に落ちることなく、手軽にLINEスタンプを制作できるようにしたい」という思いから本ツールの開発に取り組みました。</p>
+            <p>ユーザーの大切なイラストデータを外部サーバーに送信しない完全クライアントサイド処理の構成にしたことで、プライバシー保護の安心感と複数枚を一括処理する軽快な動作を両立できました。この開発を通じて、内部の複雑な画像処理やリサイズ計算をユーザーに意識させない、シンプルで直感的なUI/UX設計の重要性を深く学ぶことができました。</p>
           </div>
-
-          <div class="accordion" id="acc-7-2">
-            <button class="accordion__trigger" aria-expanded="false" aria-controls="body-7-2">
-              <div class="accordion__trigger-left">
-                <span class="accordion__tag accordion__tag--future">将来</span>
-                <span class="accordion__title">画像容量（ファイルサイズ）のリアルタイム警告表示</span>
-              </div>
-              <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="accordion__body" id="body-7-2">
-              <p>LINEスタンプの「1枚あたり1MB以下」という容量制限に対応し、プレビュー時に画像容量を自動算出して画面に表示し、1MBを超えている場合は「容量オーバーです」と警告する機能の追加を考えています。</p>
-            </div>
-          </div>
-
-
-
         </div>
       </section>
 
@@ -1388,21 +1365,41 @@
   // ======================================================
   // SIDEBAR ACTIVE HIGHLIGHT
   // ======================================================
-  const sections = document.querySelectorAll('.spec-section[id]');
+  const sections = Array.from(document.querySelectorAll('.spec-section[id]'));
   const navItems = document.querySelectorAll('.nav__item[id]');
 
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const id = entry.target.id.replace('sec-', '');
-        navItems.forEach(item => item.classList.remove('is-active'));
-        const active = document.getElementById('nav-' + id);
-        if (active) active.classList.add('is-active');
-      }
-    });
-  }, { rootMargin: '-20% 0px -70% 0px' });
+  function updateActiveSection() {
+    let currentId = '';
+    const scrollY = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const docHeight = document.documentElement.scrollHeight;
 
-  sections.forEach(s => observer.observe(s));
+    // ページの一番下にいる場合は強制的に最後のセクションをアクティブにする
+    if (scrollY + windowHeight >= docHeight - 5) {
+      if (sections.length > 0) {
+        currentId = sections[sections.length - 1].id.replace('sec-', '');
+      }
+    } else {
+      // 画面上部から少し下の位置（オフセット）を基準に現在のセクションを判定
+      const offset = 150;
+      for (const section of sections) {
+        if (section.offsetTop - offset <= scrollY) {
+          currentId = section.id.replace('sec-', '');
+        } else {
+          break; // 以降のセクションはまだ到達していない
+        }
+      }
+    }
+
+    if (currentId) {
+      navItems.forEach(item => item.classList.remove('is-active'));
+      const active = document.getElementById('nav-' + currentId);
+      if (active) active.classList.add('is-active');
+    }
+  }
+
+  window.addEventListener('scroll', updateActiveSection);
+  updateActiveSection(); // 初期表示時
 
   // ======================================================
   // MOBILE UI CONTROL
