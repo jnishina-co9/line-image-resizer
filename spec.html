@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IMAGE RESIZER — プロダクト仕様書</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>仕様書 | IMAGE RESIZER</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
@@ -900,8 +902,8 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-1-1">
-              <p>LINEスタンプの制作ガイドラインで定められている画像サイズ規格（横370px × 縦320px）に、選択した画像ファイルを一括で自動リサイズできるWebアプリケーションです。<br>
-              ドラッグ＆ドロップするだけで、画像の縦横比を保ったまま最適なサイズに縮小し、必要な余白（上下左右10px以上）を自動的に作成して中央に配置します。</p>
+              <p>LINEスタンプの制作ガイドラインで定められている画像サイズ規格に、選択した画像ファイルを一括で自動リサイズできるWebアプリケーションです。<br>
+              ドラッグ＆ドロップするだけで、画像の縦横比を保ったまま最適なサイズに縮小し、必要な余白を自動的に作成して中央に配置します。</p>
             </div>
           </div>
 
@@ -914,8 +916,8 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-1-2">
-              <p><strong>背景：</strong> LINEスタンプを制作・販売する際には、「サイズは横370px × 縦320pxであること」「イラストの周囲に10px以上の余白があること」「縦横のピクセル数値が偶数であること」など、非常に細かく厳しい画像規格をクリアする必要があります。</p>
-              <p><strong>課題：</strong> 専用の画像編集ソフト（PhotoshopやIllustratorなど）を持たない初心者クリエイターや、タブレット等の簡易アプリで描いている人にとって、この規格合わせは非常にハードルが高く、リジェクト（LINE事務局による審査落ち・不合格）の最も多い原因となっています。</p>
+              <p><strong>背景：</strong> LINEスタンプを制作・販売する際には、「サイズは横370px × 縦320pxであること」「イラストの周囲に10px以上の余白があること」「縦横のピクセル数値が偶数であること」など、細かい画像規格をクリアする必要があります。</p>
+              <p><strong>課題：</strong> 専用の画像編集ソフト（PhotoshopやIllustratorなど）を持たない初心者クリエイターや、タブレット等の簡易アプリで描いている人にとって、この規格合わせは非常にハードルが高く、リジェクト（LINE事務局による審査落ち・不合格）の多い原因となっています。</p>
               <p><strong>解決策：</strong> 手持ちのイラストファイルをブラウザに入れるだけで自動で審査基準を満たす形に整えてくれる、手軽で安全なツールを目指して本アプリを制作しました。</p>
             </div>
           </div>
@@ -964,7 +966,7 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-2-2">
-              <p>ブラウザ上で直接イラストを描画したり、大きさを変更したりするためのブラウザ標準の画像加工機能です。これを使うことで、ユーザーの画像を一度外部のサーバーへ送信することなく、すべて手元のブラウザ内だけで超高速かつ安全に画像のリサイズと余白の合成が行えます。</p>
+              <p>ブラウザ上で直接イラストを描画したり、大きさを変更したりするためのブラウザ標準の画像加工機能です。これを使うことで、ユーザーの画像を一度外部のサーバーへ送信することなく、すべて手元のブラウザ内だけで高速かつ安全に画像のリサイズと余白の合成が行えます。</p>
             </div>
           </div>
 
@@ -1160,7 +1162,7 @@
               <svg class="accordion__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="accordion__body" id="body-4-4">
-              <p>画像を選択した際のサムネイル一覧は、画面幅に応じて自動的に折り返されるレスポンシブ設計を採用しています（参考値：デスクトップ約12枚、タブレット約9枚、モバイル約7枚）。アップロードした画像の全体量をひと目で把握できるよう配慮しています。</p>
+              <p>画像を選択した際のサムネイル一覧は、画面幅に応じて自動的に折り返されるレスポンシブ設計を採用。アップロードした画像の全体量をひと目で把握できるよう配慮しています。</p>
             </div>
           </div>
         </div>
@@ -1254,7 +1256,7 @@
             </div>
             <div class="flow-step__content">
               <div class="flow-step__title">リサイズ倍率の計算</div>
-              <div class="flow-step__desc">縦横比を崩さず、規定サイズ（350×300px）に収まる縮小率を計算する</div>
+              <div class="flow-step__desc">縦横比を崩さず、規定サイズに収まる縮小率を計算する</div>
             </div>
           </div>
           <div class="flow-step">
@@ -1321,7 +1323,7 @@
         <div class="section-body">
           <div style="background: var(--color-base); padding: 32px 40px; font-size: 16px; line-height: 1.9;">
             <p style="margin-bottom: 16px;">「画像編集ソフトを持たないクリエイターでも、煩雑なサイズ調整で審査に落ちることなく、手軽にLINEスタンプを制作できるようにしたい」という思いから本ツールの開発に取り組みました。</p>
-            <p>ユーザーの大切なイラストデータを外部サーバーに送信しない完全クライアントサイド処理の構成にしたことで、プライバシー保護の安心感と複数枚を一括処理する軽快な動作を両立できました。この開発を通じて、内部の複雑な画像処理やリサイズ計算をユーザーに意識させない、シンプルで直感的なUI/UX設計の重要性を深く学ぶことができました。</p>
+            <p>ユーザーの大切なイラストデータを外部サーバーに送信しない完全クライアントサイド処理の構成にしたことで、プライバシー保護の安心感と複数枚を一括処理する軽快な動作を両立できました。この開発を通じて、内部の複雑な画像処理やリサイズ計算をユーザーに意識させない、シンプルで直感的なUI/UX設計の重要性を学ぶことができました。</p>
           </div>
         </div>
       </section>
