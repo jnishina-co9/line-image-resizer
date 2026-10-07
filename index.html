@@ -23,6 +23,14 @@
   <!-- ===== Main ===== -->
   <main class="main-container">
 
+    <nav class="tool-tabs" role="tablist" aria-label="画像の種類">
+      <button type="button" id="tab-sticker" class="tool-tab" role="tab" aria-selected="true" aria-controls="panel-sticker">スタンプ画像</button>
+      <button type="button" id="tab-main" class="tool-tab" role="tab" aria-selected="false" aria-controls="panel-main" tabindex="-1">メイン画像</button>
+      <button type="button" id="tab-talk" class="tool-tab" role="tab" aria-selected="false" aria-controls="panel-talk" tabindex="-1"><span>トークルーム</span><wbr><span>タブ画像</span></button>
+    </nav>
+
+    <div id="panel-sticker" class="tool-panel" role="tabpanel" aria-labelledby="tab-sticker">
+
     <!-- Section 01: Upload -->
     <section class="card" id="section-upload">
       <h2 class="step-title"><i data-lucide="image"></i> 1. 画像を選択</h2>
@@ -47,17 +55,6 @@
     <section class="card" id="section-result">
       <h2 class="step-title"><i data-lucide="image-down"></i> 2. 変換結果</h2>
 
-      <!-- 処理仕様 -->
-      <div class="spec-note">
-        <p class="spec-note-title">処理仕様</p>
-        <ul class="spec-list">
-          <li>LINEスタンプの標準サイズ（370 × 320 px）に自動調整</li>
-          <li>上下左右に10px以上の余白を空け、審査落ち（リジェクト）を防止</li>
-          <li>イラストの縦横比を崩さず、中央に配置</li>
-          <li>小さなイラストは無理に拡大せず、綺麗な画質のまま配置</li>
-          <li>位置やサイズを綺麗に見える数値に自動で調整</li>
-        </ul>
-      </div>
 
       <!-- 空・処理中の状態 -->
       <div id="status-area" class="status-empty hidden">
@@ -73,12 +70,117 @@
         <button id="zip-btn" class="btn-primary hidden">
           <i data-lucide="package"></i> まとめてZIP保存
         </button>
+        <p id="zip-download-status" class="main-help" role="status" aria-live="polite"></p>
         <button id="reset-btn" class="btn-secondary">
           <i data-lucide="rotate-ccw"></i> リセットしてトップに戻る
         </button>
-        <p class="disclaimer">※ 本ツールはLINEスタンプの審査通過を保証するものではありません。</p>
       </div>
     </section>
+
+    </div>
+
+    <div id="panel-main" class="tool-panel" role="tabpanel" aria-labelledby="tab-main" hidden>
+      <section class="card" aria-labelledby="main-upload-title">
+        <h2 class="step-title" id="main-upload-title"><i data-lucide="image"></i> 1. 画像を選択</h2>
+        <input type="file" id="main-file-input" accept="image/png,image/jpeg" multiple class="hidden" />
+        <div id="main-drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="メイン画像に配置する画像ファイルを選択">
+          <i data-lucide="upload-cloud" class="icon-xl drop-icon"></i>
+          <p class="drop-text">クリックして画像ファイルを選択</p>
+          <p class="drop-sub-text">または、ここにドラッグ＆ドロップ（PNG / JPG）</p>
+          <div id="main-selected-preview" class="selected-preview hidden"></div>
+        </div>
+        <p id="main-error" class="error-msg hidden" role="alert"></p>
+        <p id="main-load-status" class="main-help hidden" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card" aria-labelledby="main-editor-title">
+        <h2 class="step-title" id="main-editor-title"><i data-lucide="move"></i> 2. 画像を配置・調整</h2>
+        <p class="main-help" id="main-canvas-help">画像を選択後、ドラッグして移動します。枠の四隅のつまみをドラッグすると拡大・縮小できます。<br>市松模様は透明部分です。元画像の白背景などを取り除く機能はありません。背景を透明にしたPNG画像をご用意ください。</p>
+        <div class="main-editor-layout">
+          <figure class="main-stage">
+            <canvas id="main-canvas" width="720" height="720" tabindex="0" aria-label="メイン画像の編集枠。保存サイズは横240px、縦240px" aria-describedby="main-canvas-help">画像を選択し、大きさを調整してください。</canvas>
+            <figcaption>240 × 240 px ／ 点線は周囲10pxの余白の目安</figcaption>
+          </figure>
+          <div class="main-controls">
+            <p class="main-help" id="main-empty">画像を追加すると、ここで選択・調整できます。</p>
+            <ul id="main-image-list" class="main-image-list" aria-label="配置した画像"></ul>
+            <fieldset id="main-image-controls" class="main-image-controls" disabled>
+              <legend>選択した画像の調整</legend>
+              <p id="main-selected-name" class="main-selected-name">画像が選択されていません</p>
+              <label for="main-size" class="main-size-label"><span>大きさ：縦横比を保って拡大・縮小します。</span> <output id="main-size-value" for="main-size">—</output></label>
+              <input type="range" id="main-size" min="1" max="240" step="1" value="220" />
+            </fieldset>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="card" aria-labelledby="main-download-title">
+        <h2 class="step-title" id="main-download-title"><i data-lucide="image-down"></i> 3. ダウンロード</h2>
+        <p class="main-help">240 × 240 px ／ 透過PNG ／ RGB ／ 96dpi ／ 1MB以下<br>配置した画像を1枚にまとめて保存します。市松模様・点線・選択枠は保存されません。</p>
+        <div class="actions-group">
+          <button type="button" id="main-download" class="btn-primary" disabled><i data-lucide="download"></i> ダウンロード</button>
+          <p id="main-download-status" class="main-help" role="status" aria-live="polite"></p>
+          <button type="button" id="main-reset" class="btn-secondary" disabled>
+            <i data-lucide="rotate-ccw"></i> リセットしてトップに戻る
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div id="panel-talk" class="tool-panel" role="tabpanel" aria-labelledby="tab-talk" hidden>
+      <section class="card" aria-labelledby="talk-upload-title">
+        <h2 class="step-title" id="talk-upload-title"><i data-lucide="image"></i> 1. 画像を選択</h2>
+        <input type="file" id="talk-file-input" accept="image/png,image/jpeg" multiple class="hidden" />
+        <div id="talk-drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="トークルームタブ画像に配置する画像ファイルを選択">
+          <i data-lucide="upload-cloud" class="icon-xl drop-icon"></i>
+          <p class="drop-text">クリックして画像ファイルを選択</p>
+          <p class="drop-sub-text">または、ここにドラッグ＆ドロップ（PNG / JPG）</p>
+          <div id="talk-selected-preview" class="selected-preview hidden"></div>
+        </div>
+        <p id="talk-error" class="error-msg hidden" role="alert"></p>
+        <p id="talk-load-status" class="main-help hidden" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="card" aria-labelledby="talk-editor-title">
+        <h2 class="step-title" id="talk-editor-title"><i data-lucide="move"></i> 2. 画像を配置・調整</h2>
+        <p class="main-help" id="talk-canvas-help">画像を選択後、ドラッグして移動します。枠の四隅のつまみをドラッグすると拡大・縮小できます。<br>市松模様は透明部分です。元画像の白背景などを取り除く機能はありません。背景を透明にしたPNG画像をご用意ください。</p>
+        <div class="main-editor-layout">
+          <figure class="main-stage">
+            <canvas id="talk-canvas" width="768" height="592" tabindex="0" aria-label="トークルームタブ画像の編集枠。保存サイズは横96px、縦74px" aria-describedby="talk-canvas-help">画像を選択し、大きさを調整してください。</canvas>
+            <figcaption>96 × 74 px ／ 点線は周囲10pxの余白の目安</figcaption>
+          </figure>
+          <div class="main-controls">
+            <p class="main-help" id="talk-empty">画像を追加すると、ここで選択・調整できます。</p>
+            <ul id="talk-image-list" class="main-image-list" aria-label="配置した画像"></ul>
+            <fieldset id="talk-image-controls" class="main-image-controls" disabled>
+              <legend>選択した画像の調整</legend>
+              <p id="talk-selected-name" class="main-selected-name">画像が選択されていません</p>
+              <label for="talk-size" class="main-size-label"><span>大きさ：縦横比を保って拡大・縮小します。</span> <output id="talk-size-value" for="talk-size">—</output></label>
+              <input type="range" id="talk-size" min="1" max="96" step="1" value="76" />
+            </fieldset>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="card" aria-labelledby="talk-download-title">
+        <h2 class="step-title" id="talk-download-title"><i data-lucide="image-down"></i> 3. ダウンロード</h2>
+        <p class="main-help">96 × 74 px ／ 透過PNG ／ RGB ／ 96dpi ／ 1MB以下<br>配置した画像を1枚にまとめて保存します。市松模様・点線・選択枠は保存されません。</p>
+        <div class="actions-group">
+          <button type="button" id="talk-download" class="btn-primary" disabled><i data-lucide="download"></i> ダウンロード</button>
+          <p id="talk-download-status" class="main-help" role="status" aria-live="polite"></p>
+          <button type="button" id="talk-reset" class="btn-secondary" disabled>
+            <i data-lucide="rotate-ccw"></i> リセットしてトップに戻る
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- フッター上の案内テキスト -->
+    <div class="notice-box">
+      <p class="notice-text"><span><a href="https://creator.line.me/ja/guideline/sticker/" target="_blank" rel="noopener noreferrer">LINE公式制作ガイドライン</a>に基づく仕様です。</span><span>審査通過を保証するものではありません。</span></p>
+    </div>
 
   </main>
 
