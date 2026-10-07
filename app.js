@@ -21,11 +21,10 @@ const DOM = {
   resultGrid:        document.getElementById('result-grid'),
   resetBtn:          document.getElementById('reset-btn'),
   actionsGroup:      document.getElementById('actions-group'),
-  zipDownloadStatus: document.getElementById('zip-download-status'),
 };
 
 // ===== State =====
-// items: { id, blob, previewUrl, name, sizeLabel }
+// items: { id, blob, previewUrl, name }
 let items = [];
 let selectedPreviews = []; // アップロード元画像のプレビュー用URL
 
@@ -33,13 +32,6 @@ let selectedPreviews = []; // アップロード元画像のプレビュー用UR
 function toEven(n) {
   const f = Math.floor(n);
   return f % 2 === 0 ? f : f - 1;
-}
-
-function formatBytes(bytes) {
-  if (!bytes || bytes === 0) return '0 B';
-  if (bytes < 1024)           return bytes + ' B';
-  if (bytes < 1024 * 1024)    return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / 1024 / 1024).toFixed(2) + ' MB';
 }
 
 function getFormattedDate() {
@@ -180,10 +172,6 @@ function renderResults() {
       <div class="result-thumb">
         <img src="${item.previewUrl}" alt="${item.name}" />
       </div>
-      <div class="result-info">
-        <span class="result-name" title="元のファイル名: ${item.origName || item.name}">${item.name}</span>
-        <span class="result-size">${item.sizeLabel}</span>
-      </div>
       <button class="btn-item-dl">
         <i data-lucide="download"></i> 保存
       </button>
@@ -196,7 +184,6 @@ function renderResults() {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      DOM.zipDownloadStatus.textContent = `${item.name}（${item.sizeLabel}）をダウンロードしました。`;
     });
 
     DOM.resultGrid.appendChild(div);
@@ -223,7 +210,6 @@ async function handleFiles(files) {
 
   // 選択画像のプレビューを即時表示
   showSelectedPreviews(imageFiles);
-  DOM.zipDownloadStatus.textContent = '';
 
   // ローディング表示
   DOM.statusArea.classList.remove('hidden');
@@ -240,10 +226,9 @@ async function handleFiles(files) {
       const previewUrl = URL.createObjectURL(blob);
       const num        = items.length + 1;
       const name       = `${String(num).padStart(2, '0')}.png`;
-      const sizeLabel  = formatBytes(blob.size);
       const id         = Math.random().toString(36).substr(2, 9);
 
-      items.push({ id, blob, previewUrl, name, sizeLabel, origName: file.name });
+      items.push({ id, blob, previewUrl, name });
       processed++;
       DOM.statusText.textContent = `変換中... (${processed} / ${imageFiles.length})`;
     } catch (e) {
@@ -280,12 +265,10 @@ DOM.zipBtn.addEventListener('click', async () => {
   DOM.zipBtn.disabled  = false;
   DOM.zipBtn.innerHTML = origHTML;
   lucide.createIcons();
-  DOM.zipDownloadStatus.textContent = `${a.download}（${formatBytes(content.size)}・${items.length}枚）をダウンロードしました。`;
 });
 
 // ===== Reset =====
 DOM.resetBtn.addEventListener('click', () => {
-  DOM.zipDownloadStatus.textContent = '';
   items.forEach(item => URL.revokeObjectURL(item.previewUrl));
   items = [];
   // 選択プレビューもクリア
@@ -368,7 +351,6 @@ toolTabs.forEach((tab, index) => {
   const downloadButton = $('main-download');
   const resetButton = $('main-reset');
   const error = $('main-error');
-  const downloadStatus = $('main-download-status');
   const layers = [];
   let selectedId = null;
   let nextId = 1;
@@ -521,7 +503,6 @@ toolTabs.forEach((tab, index) => {
     updateDownloadButton();
     importQueue = importQueue.then(async () => {
       showMainError('');
-      downloadStatus.textContent = '';
       const failed = [];
       for (const [index, file] of batch.entries()) {
         $('main-load-status').textContent = `画像を読み込み中… ${index + 1} / ${batch.length}`;
@@ -671,7 +652,6 @@ toolTabs.forEach((tab, index) => {
       showCenterGuide = true;
       drawEditor();
     }
-    downloadStatus.textContent = '';
   });
   canvas.addEventListener('pointerleave', () => { if (!drag) setResizeCursor(null); });
   canvas.addEventListener('pointerup', stopDrag);
@@ -686,7 +666,6 @@ toolTabs.forEach((tab, index) => {
     layer.x += movement[0] * step;
     layer.y += movement[1] * step;
     clampPosition(layer);
-    downloadStatus.textContent = '';
     showCenterGuide = true;
     clearTimeout(guideTimeout);
     guideTimeout = setTimeout(() => {
@@ -706,7 +685,6 @@ toolTabs.forEach((tab, index) => {
     layer.x = centerX - layer.width / 2;
     layer.y = centerY - layer.height / 2;
     clampPosition(layer);
-    downloadStatus.textContent = '';
     showCenterGuide = true;
     clearTimeout(guideTimeout);
     guideTimeout = setTimeout(() => {
@@ -727,7 +705,6 @@ toolTabs.forEach((tab, index) => {
     URL.revokeObjectURL(layers[index].url);
     layers.splice(index, 1);
     selectedId = layers[Math.min(index, layers.length - 1)]?.id ?? null;
-    downloadStatus.textContent = '';
     $('main-load-status').textContent = '';
     renderLayerList();
     (list.querySelector('[aria-pressed="true"]') || dropZone).focus();
@@ -738,7 +715,6 @@ toolTabs.forEach((tab, index) => {
     exporting = true;
     updateDownloadButton();
     showMainError('');
-    downloadStatus.textContent = '保存用の画像を作成中…';
     try {
       const output = document.createElement('canvas');
       output.width = SIZE;
@@ -760,9 +736,8 @@ toolTabs.forEach((tab, index) => {
       link.click();
       link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 10000);
-      downloadStatus.textContent = `main.png（240 × 240 px・${formatBytes(blob.size)}）をダウンロードしました。`;
     } catch (cause) {
-      downloadStatus.textContent = cause.message || '保存処理に失敗しました。画像を選び直して再度お試しください。';
+      showMainError(cause.message || '保存処理に失敗しました。画像を選び直して再度お試しください。');
     } finally {
       exporting = false;
       updateDownloadButton();
@@ -774,7 +749,6 @@ toolTabs.forEach((tab, index) => {
     layers.length = 0;
     selectedId = null;
     fileInput.value = '';
-    downloadStatus.textContent = '';
     $('main-load-status').textContent = '';
     showMainError('');
     renderLayerList();
@@ -805,7 +779,6 @@ toolTabs.forEach((tab, index) => {
   const downloadButton = $('talk-download');
   const resetButton = $('talk-reset');
   const error = $('talk-error');
-  const downloadStatus = $('talk-download-status');
   const layers = [];
   let selectedId = null;
   let nextId = 1;
@@ -960,7 +933,6 @@ toolTabs.forEach((tab, index) => {
     updateDownloadButton();
     importQueue = importQueue.then(async () => {
       showTalkError('');
-      downloadStatus.textContent = '';
       const failed = [];
       for (const [index, file] of batch.entries()) {
         $('talk-load-status').textContent = `画像を読み込み中… ${index + 1} / ${batch.length}`;
@@ -1108,7 +1080,6 @@ toolTabs.forEach((tab, index) => {
       showCenterGuide = true;
       drawEditor();
     }
-    downloadStatus.textContent = '';
   });
   canvas.addEventListener('pointerleave', () => { if (!drag) setResizeCursor(null); });
   canvas.addEventListener('pointerup', stopDrag);
@@ -1123,7 +1094,6 @@ toolTabs.forEach((tab, index) => {
     layer.x += movement[0] * step;
     layer.y += movement[1] * step;
     clampPosition(layer);
-    downloadStatus.textContent = '';
     showCenterGuide = true;
     clearTimeout(guideTimeout);
     guideTimeout = setTimeout(() => {
@@ -1143,7 +1113,6 @@ toolTabs.forEach((tab, index) => {
     layer.x = centerX - layer.width / 2;
     layer.y = centerY - layer.height / 2;
     clampPosition(layer);
-    downloadStatus.textContent = '';
     showCenterGuide = true;
     clearTimeout(guideTimeout);
     guideTimeout = setTimeout(() => {
@@ -1164,7 +1133,6 @@ toolTabs.forEach((tab, index) => {
     URL.revokeObjectURL(layers[index].url);
     layers.splice(index, 1);
     selectedId = layers[Math.min(index, layers.length - 1)]?.id ?? null;
-    downloadStatus.textContent = '';
     $('talk-load-status').textContent = '';
     renderLayerList();
     (list.querySelector('[aria-pressed="true"]') || dropZone).focus();
@@ -1175,7 +1143,6 @@ toolTabs.forEach((tab, index) => {
     exporting = true;
     updateDownloadButton();
     showTalkError('');
-    downloadStatus.textContent = '保存用の画像を作成中…';
     try {
       const output = document.createElement('canvas');
       output.width = WIDTH;
@@ -1197,9 +1164,8 @@ toolTabs.forEach((tab, index) => {
       link.click();
       link.remove();
       setTimeout(() => URL.revokeObjectURL(url), 10000);
-      downloadStatus.textContent = `tab.png（96 × 74 px・${formatBytes(blob.size)}）をダウンロードしました。`;
     } catch (cause) {
-      downloadStatus.textContent = cause.message || '保存処理に失敗しました。画像を選び直して再度お試しください。';
+      showTalkError(cause.message || '保存処理に失敗しました。画像を選び直して再度お試しください。');
     } finally {
       exporting = false;
       updateDownloadButton();
@@ -1211,7 +1177,6 @@ toolTabs.forEach((tab, index) => {
     layers.length = 0;
     selectedId = null;
     fileInput.value = '';
-    downloadStatus.textContent = '';
     $('talk-load-status').textContent = '';
     showTalkError('');
     renderLayerList();
