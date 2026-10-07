@@ -363,6 +363,7 @@ body {
 .footer-copy {
   font-family: var(--font-accent);
   font-size: 14px;
+  font-weight: 300;
   color: var(--color-main);
   letter-spacing: 0.05em;
 }
